@@ -1,0 +1,57 @@
+/* CONTENEDOR EXCLUSIVO DEL FORMULARIO */
+.formulario-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;   /* 🔥 lo manda a la izquierda */
+  padding-left: 80px;            /* 🔥 controla qué tan a la izquierda queda */
+  margin-top: 40px;
+
+  transform: translateX(-50px); /*🔥 AJUSTA ESTE VALOR*/
+}
+
+/* FORMULARIO */
+.formulario {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(6px);
+  padding: 40px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* TÍTULO */
+.formulario h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #1f6fb2;
+}
+
+/* INPUTS */
+.formulario input,
+.formulario select {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  border: 1px solid #cfd8e3;
+  font-size: 16px;
+}
+
+/* BOTÓN */
+.formulario button {
+  width: 100%;
+  padding: 14px;
+  background-color: #1f6fb2;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.formulario button:hover {
+  background-color: #174f82;
+}

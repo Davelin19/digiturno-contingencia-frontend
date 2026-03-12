@@ -1,0 +1,115 @@
+/* ============================= */
+/* Fondo oscuro elegante */
+/* ============================= */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  backdrop-filter: blur(2px);
+}
+
+/* ============================= */
+/* Caja del modal */
+/* ============================= */
+.modal {
+  background: #ffffff;
+  width: 380px;
+  padding: 32px 28px;
+  border-radius: 14px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  text-align: center;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* ============================= */
+/* Título */
+/* ============================= */
+.modal h2 {
+  margin-bottom: 24px;
+  color: #1f4fd8;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* ============================= */
+/* Select */
+/* ============================= */
+.modal select {
+  width: 100%;
+  padding: 13px 14px;
+  margin-bottom: 18px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 15px;
+
+  /* 🔑 CLAVE PARA QUE SE VEA BIEN */
+  background-color: #f9fafb;
+  color: #1f2937;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Opciones del select */
+.modal select option {
+  color: #1f2937;
+  background-color: #ffffff;
+}
+
+/* Focus */
+.modal select:focus {
+  outline: none;
+  border-color: #1f4fd8;
+  box-shadow: 0 0 0 3px rgba(31, 79, 216, 0.25);
+}
+
+/* ============================= */
+/* Botón confirmar */
+/* ============================= */
+.modal button {
+  width: 100%;
+  padding: 13px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+/* Botón activo */
+.modal button:not(:disabled) {
+  background: linear-gradient(135deg, #1f4fd8, #3b82f6);
+  color: white;
+}
+
+.modal button:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(31, 79, 216, 0.35);
+}
+
+/* Botón deshabilitado */
+.modal button:disabled {
+  background-color: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* ============================= */
+/* Animación */
+/* ============================= */
+@keyframes fadeIn {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
