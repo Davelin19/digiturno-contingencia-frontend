@@ -6,33 +6,36 @@ function Formulario({ onEnviar, personaEditando }: FormularioProps) {
   const [cedula, setCedula] = useState("");
   const [nombre, setNombre] = useState("");
   const [destino, setDestino] = useState("");
-  const API_URL = import.meta.env.VITE_API_URL
-  const [perfiles, setPerfiles]=useState([])
+  const API_URL = import.meta.env.VITE_API_URL;
+  const [perfiles, setPerfiles] = useState([]);
 
-  useEffect(()=>{
-    const id_sala = localStorage.getItem("salaSeleccionada")
+  useEffect(() => {
+    const id_sala = localStorage.getItem("salaSeleccionada");
     fetch(`${API_URL}/salas/${id_sala}/perfiles_atencion`)
-    .then(res=>res.json())
-    .then(res=>setPerfiles(res))
-  },[cedula])
+      .then((res) => res.json())
+      .then((res) => setPerfiles(res));
+  }, [cedula]);
 
   useEffect(() => {
     if (personaEditando) {
-      setCedula(String(personaEditando.cedula));
-      setNombre(personaEditando.nombre);
-      setDestino(personaEditando.destino);
+      queueMicrotask(() => {
+        setCedula(String(personaEditando.cedula));
+        setNombre(personaEditando.nombre);
+        setDestino(personaEditando.destino);
+      });
     } else {
-      setCedula("");
-      setNombre("");
-      setDestino("");
+      queueMicrotask(() => {
+        setCedula("");
+        setNombre("");
+        setDestino("");
+      });
     }
   }, [personaEditando]);
 
- 
   const enviarFormulario = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!cedula || !nombre || !destino ) {
+    if (!cedula || !nombre || !destino) {
       alert("Completa todos los campos");
       return;
     }
@@ -53,7 +56,9 @@ function Formulario({ onEnviar, personaEditando }: FormularioProps) {
   return (
     <div className="formulario-wrapper">
       <form className="formulario" onSubmit={enviarFormulario}>
-        <h2>{personaEditando ? "Editar Visitante" : "Registro de Visitantes"}</h2>
+        <h2>
+          {personaEditando ? "Editar Visitante" : "Registro de Visitantes"}
+        </h2>
 
         <input
           type="text"
@@ -71,7 +76,11 @@ function Formulario({ onEnviar, personaEditando }: FormularioProps) {
 
         <select value={destino} onChange={(e) => setDestino(e.target.value)}>
           <option value="">¿Para dónde va?</option>
-          {perfiles.map((p,i)=>(<option key={i} value={p}>{p}</option>))}
+          {perfiles.map((p, i) => (
+            <option key={i} value={p}>
+              {p}
+            </option>
+          ))}
         </select>
 
         <button type="submit">

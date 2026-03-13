@@ -18,55 +18,52 @@ function Recepcion() {
   const [salaSeleccionada, setSalaSeleccionada] = useState<number>(0);
   const [configurada, setConfigurada] = useState(false);
 
+  // 🔹 CARGAR PERSONAS
+  async function cargarPersonas() {
+    if (!configurada) return;
+
+    try {
+      const res = await fetch(API_URL);
+      const data: Persona[] = await res.json();
+
+      const filtrados = data.filter(
+        (p) => p.id_sala === salaSeleccionada && p.estado === "En espera",
+      );
+
+      // 🔥 SOLO ACTUALIZA SI CAMBIÓ
+      setRegistros((prev) => {
+        const iguales = JSON.stringify(prev) === JSON.stringify(filtrados);
+        return iguales ? prev : filtrados;
+      });
+    } catch (error) {
+      console.error("Error cargando personas:", error);
+    }
+  }
   // 🔹 CARGAR SALA DESDE LOCALSTORAGE
   useEffect(() => {
     const salaLS = localStorage.getItem("salaRecepcion");
     if (salaLS) {
-      setSalaSeleccionada(Number(salaLS));
-      setConfigurada(true);
+      Promise.resolve().then(() => {
+        setSalaSeleccionada(Number(salaLS));
+        setConfigurada(true);
+      });
     }
   }, []);
 
   // 🔹 RECARGA AUTOMÁTICA CADA 5 SEGUNDOS
-useEffect(() => {
-  if (!configurada) return;
-
-  const interval = setInterval(() => {
-    cargarPersonas();
-  }, 5000);
-
-  return () => clearInterval(interval); // limpiar al desmontar
-}, [salaSeleccionada, configurada]);
-
-  // 🔹 CARGAR PERSONAS
-const cargarPersonas = async () => {
-  if (!configurada) return;
-
-  try {
-    const res = await fetch(API_URL);
-    const data: Persona[] = await res.json();
-
-    const filtrados = data.filter(
-      (p) =>
-        p.id_sala === salaSeleccionada &&
-        p.estado === "En espera"
-    );
-
-    // 🔥 SOLO ACTUALIZA SI CAMBIÓ
-    setRegistros((prev) => {
-      const iguales =
-        JSON.stringify(prev) === JSON.stringify(filtrados);
-      return iguales ? prev : filtrados;
-    });
-
-  } catch (error) {
-    console.error("Error cargando personas:", error);
-  }
-};
-
   useEffect(() => {
-    cargarPersonas();
+    if (!configurada) return;
+
+    const interval = setInterval(() => {
+      cargarPersonas();
+    }, 5000);
+
+    return () => clearInterval(interval); // limpiar al desmontar
   }, [salaSeleccionada, configurada]);
+
+  // useEffect(() => {
+  //   cargarPersonas();
+  // }, [salaSeleccionada, configurada]);
 
   // 🔹 CREAR / ACTUALIZAR
   const guardarPersona = async (persona: Persona) => {
@@ -116,11 +113,11 @@ const cargarPersonas = async () => {
 
   return (
     <SalaContext.Provider
-      value={{ 
-        salaId: salaSeleccionada, 
+      value={{
+        salaId: salaSeleccionada,
         setSalaId: setSalaSeleccionada,
         perfilCaja: null,
-        setPerfilCaja: () => {}
+        setPerfilCaja: () => {},
       }}
     >
       <div className="pantalla">
@@ -144,10 +141,13 @@ const cargarPersonas = async () => {
         {configurada && (
           <div className="contenido-doble">
             <Formulario
-              onEnviar={(data) => guardarPersona({
-                ...data, id_sala: salaSeleccionada,
-                id: undefined
-              })}
+              onEnviar={(data) =>
+                guardarPersona({
+                  ...data,
+                  id_sala: salaSeleccionada,
+                  id: undefined,
+                })
+              }
               personaEditando={personaEditando}
             />
 

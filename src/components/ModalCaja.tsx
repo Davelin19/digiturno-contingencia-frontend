@@ -24,20 +24,18 @@ function ModalCaja({ modo, onConfirmar }: ModalCajaProps) {
 
   // 🔹 CARGAR CAJAS SEGÚN SALA
   useEffect(() => {
-    if (!sala || modo !== "caja") {
-      setCajas([]);
-      setCaja(0);
-      return;
+    if (sala && modo === "caja") {
+      fetch(`${API_URL}/cajas/sala/${sala}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setCajas(data);
+          setCaja(0);
+        })
+        .catch((err) => console.error("Error cargando cajas:", err));
     }
-
-    fetch(`${API_URL}/cajas/sala/${sala}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setCajas(data);
-        setCaja(0);
-      })
-      .catch((err) => console.error("Error cargando cajas:", err));
   }, [sala, modo]);
+
+  // Eliminar efecto que resetea cajas y caja para evitar renders en cascada
 
   const confirmar = async () => {
     if (!sala) return;
@@ -49,25 +47,24 @@ function ModalCaja({ modo, onConfirmar }: ModalCajaProps) {
 
       try {
         const res = await fetch(`${API_URL}/cajas/${caja}`);
-const raw = await res.json();
+        const raw = await res.json();
 
-// 🔥 si viene como array, tomar el primero
-const cajaData = Array.isArray(raw) ? raw[0] : raw;
+        // 🔥 si viene como array, tomar el primero
+        const cajaData = Array.isArray(raw) ? raw[0] : raw;
 
-if (!cajaData?.perfil_atencion) {
-  console.error("Perfil de caja inválido", cajaData);
-  return;
-}
+        if (!cajaData?.perfil_atencion) {
+          console.error("Perfil de caja inválido", cajaData);
+          return;
+        }
 
-localStorage.setItem("cajaSeleccionada", caja.toString());
-localStorage.setItem("perfilCaja", cajaData.perfil_atencion);
+        localStorage.setItem("cajaSeleccionada", caja.toString());
+        localStorage.setItem("perfilCaja", cajaData.perfil_atencion);
 
-// 🔥 CONTEXTO
-salaContext?.setPerfilCaja(cajaData.perfil_atencion);
+        // 🔥 CONTEXTO
+        salaContext?.setPerfilCaja(cajaData.perfil_atencion);
 
-// 🔥 PADRE
-onConfirmar(sala, caja, cajaData.perfil_atencion);
-
+        // 🔥 PADRE
+        onConfirmar(sala, caja, cajaData.perfil_atencion);
       } catch (err) {
         console.error("Error obteniendo perfil de caja:", err);
       }
@@ -92,7 +89,7 @@ onConfirmar(sala, caja, cajaData.perfil_atencion);
         </select>
 
         {/* 🔹 CAJA */}
-        {modo === "caja" && (
+        {modo === "caja" && sala !== 0 && (
           <select
             value={caja}
             onChange={(e) => setCaja(Number(e.target.value))}
