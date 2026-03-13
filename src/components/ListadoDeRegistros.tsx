@@ -1,19 +1,16 @@
 import "../assets/ListadoDeRegistros.css";
 import type { ListadoProps, Persona } from "../types/Types";
 import { useNavigate } from "react-router-dom";
-import {useState} from "react"
 
 const API_URL = `${import.meta.env.VITE_API_URL}/turnos`;
-
 
 function ListadoDeRegistros({
   registros,
   onEliminar,
   onEditar,
   caja,
-  recargar
+  recargar,
 }: ListadoProps) {
-const [turnoLlamado, setTurnoLlamado]=useState<Persona | null>(null)
   const navigate = useNavigate();
 
   // 📞 LLAMAR PERSONA (Caja 1)
@@ -28,13 +25,10 @@ const [turnoLlamado, setTurnoLlamado]=useState<Persona | null>(null)
           estado: "Llamado", // ⚠️ EXACTO
         }),
       });
-      recargar?.(); // 🔥 ACTUALIZA LISTA
-      fetch(`${API_URL}/${persona.id}`)
-      .then((res)=>res.json())
-      .then(res=>
-        setTurnoLlamado(res)
-      )
 
+      // Guardar el turno seleccionado para Caja2
+      localStorage.setItem("turnoLlamadoId", persona.id.toString());
+      recargar?.(); // 🔥 ACTUALIZA LISTA
       navigate("/caja2");
     } catch (error) {
       console.error("Error llamando persona:", error);
@@ -42,28 +36,27 @@ const [turnoLlamado, setTurnoLlamado]=useState<Persona | null>(null)
   };
 
   // ✔️ ATENDER (Caja 2)
-const atender = async (persona: Persona) => {
-  try {
-    await fetch(`${API_URL}/${persona.id}/estado`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        estado: "Atendido",
-      }),
-    });
-    recargar?.(); // 🔥 ACTUALIZA LISTA
+  const atender = async (persona: Persona) => {
+    try {
+      await fetch(`${API_URL}/${persona.id}/estado`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          estado: "Atendido",
+        }),
+      });
+      recargar?.(); // 🔥 ACTUALIZA LISTA
 
-    console.log("Persona atendida:", persona.nombre);
-    setTurnoLlamado(null)
-    // 🔁 volver a caja 1
-    navigate("/caja1");
-  } catch (error) {
-    console.error("Error al atender:", error);
-  }
-};
-
+      console.log("Persona atendida:", persona.nombre);
+      localStorage.removeItem("turnoLlamadoId");
+      // 🔁 volver a caja 1
+      navigate("/caja1");
+    } catch (error) {
+      console.error("Error al atender:", error);
+    }
+  };
 
   // ❌ CANCELAR (Caja 2)
   const cancelar = async (persona: Persona) => {
@@ -78,52 +71,25 @@ const atender = async (persona: Persona) => {
         }),
       });
       recargar?.(); // 🔥 ACTUALIZA LISTA
-      
-      setTurnoLlamado(null)
+
+      localStorage.removeItem("turnoLlamadoId");
       navigate("/caja1");
     } catch (error) {
       console.error("Error cancelando persona:", error);
     }
   };
 
-
   return (
     <div className="listado">
       <div className="listado-header">
-        <h2>
-          {caja === 2 ? "Personas en Atención" : "Personas en Sala"}
-        </h2>
+        <h2>{caja === 2 ? "Personas en Atención" : "Personas en Sala"}</h2>
       </div>
 
       {registros.length === 0 ? (
         <p className="vacio">No hay personas</p>
-        ) : (
-          <ul>
-          {turnoLlamado?<li key={turnoLlamado.id} className="item">
-              <div>
-                <div className="nombre">{turnoLlamado.nombre}</div>
-                <div className="detalle">
-                  CC: {turnoLlamado.cedula} · {turnoLlamado.destino} · {turnoLlamado.estado}
-                </div>
-              </div>
-
-             
-                <div className="col">
-                  <button
-                    className="btn-llamar"
-                    onClick={() => atender(turnoLlamado)}
-                  >
-                    ✔️ Atendido
-                  </button>
-                  <button
-                    className="btn-llamar"
-                    onClick={() => cancelar(turnoLlamado)}
-                  >
-                    ❌ Cancelado
-                  </button>
-                </div>
-              
-            </li>:registros.map((persona, index) => (
+      ) : (
+        <ul>
+          {registros.map((persona, index) => (
             <li key={persona.id} className="item">
               <div>
                 <div className="nombre">{persona.nombre}</div>
@@ -131,7 +97,7 @@ const atender = async (persona: Persona) => {
                   CC: {persona.cedula} · {persona.destino} · {persona.estado}
                 </div>
               </div>
-              
+
               {/* RECEPCIÓN */}
               {caja === 0 && (
                 <div className="col">
@@ -153,7 +119,10 @@ const atender = async (persona: Persona) => {
               {/* CAJA VISTA 1 */}
               {caja === 1 && index === 0 && (
                 <div className="col">
-                  <button className="btn-llamar" onClick={() => llamar(persona)}>
+                  <button
+                    className="btn-llamar"
+                    onClick={() => llamar(persona)}
+                  >
                     📞 Llamar
                   </button>
                 </div>

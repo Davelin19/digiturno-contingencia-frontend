@@ -9,25 +9,33 @@ const API_URL = `${import.meta.env.VITE_API_URL}/turnos`;
 function Caja2() {
   const [registros, setRegistros] = useState<Persona[]>([]);
 
-useEffect(() => {
-  const cargarPersona = async () => {
-    try {
-      const res = await fetch(API_URL);
-      const data: Persona[] = await res.json();
+  useEffect(() => {
+    const cargarPersona = async () => {
+      try {
+        const turnoLlamadoId = localStorage.getItem("turnoLlamadoId");
 
-      setRegistros(
-        data.filter(p => p.estado === "Llamado")
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  };
+        if (turnoLlamadoId) {
+          const res = await fetch(`${API_URL}/${turnoLlamadoId}`);
+          if (!res.ok) {
+            throw new Error("No se encontró el turno llamado");
+          }
+          const persona: Persona = await res.json();
+          setRegistros(persona ? [persona] : []);
+        } else {
+          const res = await fetch(API_URL);
+          const data: Persona[] = await res.json();
+          setRegistros(data.filter((p) => p.estado === "Llamado"));
+        }
+      } catch (error) {
+        console.error(error);
+        setRegistros([]);
+      }
+    };
 
-  cargarPersona();
-  // const interval = setInterval(cargarPersona, 3000);
-  // return () => clearInterval(interval);
-}, []);
-
+    cargarPersona();
+    // const interval = setInterval(cargarPersona, 3000);
+    // return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="pantalla">
