@@ -6,7 +6,7 @@ function Formulario({ onEnviar, personaEditando }: FormularioProps) {
   const [cedula, setCedula] = useState("");
   const [nombre, setNombre] = useState("");
   const [destino, setDestino] = useState("");
-  const API_URL = "https://cv8qdx88-3000.use2.devtunnels.ms/api"
+  const API_URL = import.meta.env.VITE_API_URL
   const [perfiles, setPerfiles]=useState([])
 
   useEffect(()=>{

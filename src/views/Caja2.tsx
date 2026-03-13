@@ -4,7 +4,7 @@ import ListadoDeRegistros from "../components/ListadoDeRegistros";
 import Header from "../components/Header";
 import type { Persona } from "../types/Types";
 
-const API_URL = "https://cv8qdx88-3000.use2.devtunnels.ms/api/turnos";
+const API_URL = `${import.meta.env.VITE_API_URL}/turnos`;
 
 function Caja2() {
   const [registros, setRegistros] = useState<Persona[]>([]);

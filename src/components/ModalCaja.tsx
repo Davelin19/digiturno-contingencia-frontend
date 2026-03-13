@@ -5,7 +5,7 @@ import type { ModalCajaProps } from "../types/Types";
 import { useContext } from "react";
 import SalaContext from "../contexts/SalaContext";
 
-const API_URL = "https://cv8qdx88-3000.use2.devtunnels.ms/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 function ModalCaja({ modo, onConfirmar }: ModalCajaProps) {
   const [sala, setSala] = useState(0);

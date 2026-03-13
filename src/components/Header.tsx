@@ -7,7 +7,7 @@ import type { Sala } from "../types/Types";
 function Header({ titulo }: HeaderProps) {
   const salaContext = useContext(SalaContext);
   const [sala, setSala] = useState<Sala | undefined>();
-  const API_URL = "https://cv8qdx88-3000.use2.devtunnels.ms/api";
+  const API_URL = import.meta.env.VITE_API_URL;
   if (!salaContext) return null;
 
   const { salaId, perfilCaja } = salaContext;

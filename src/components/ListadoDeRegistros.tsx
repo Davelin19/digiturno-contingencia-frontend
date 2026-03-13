@@ -3,7 +3,7 @@ import type { ListadoProps, Persona } from "../types/Types";
 import { useNavigate } from "react-router-dom";
 import {useState} from "react"
 
-const API_URL = "https://cv8qdx88-3000.use2.devtunnels.ms/api/turnos";
+const API_URL = `${import.meta.env.VITE_API_URL}/turnos`;
 
 
 function ListadoDeRegistros({

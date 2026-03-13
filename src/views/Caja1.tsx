@@ -6,8 +6,8 @@ import ModalCaja from "../components/ModalCaja";
 import SalaContext from "../contexts/SalaContext";
 import type { Persona } from "../types/Types";
 
-const API_PERSONAS = "https://cv8qdx88-3000.use2.devtunnels.ms/api/turnos";
-const API_CAJAS = "https://cv8qdx88-3000.use2.devtunnels.ms/api/cajas";
+const API_PERSONAS = `${import.meta.env.VITE_API_URL}/turnos`;
+const API_CAJAS = `${import.meta.env.VITE_API_URL}/cajas`;
 
 function Caja1() {
   const [registros, setRegistros] = useState<Persona[]>([]);

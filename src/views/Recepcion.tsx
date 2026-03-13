@@ -7,7 +7,7 @@ import type { Persona } from "../types/Types";
 import "../assets/Recepcion.css";
 import SalaContext from "../contexts/SalaContext";
 
-const API_URL = "https://cv8qdx88-3000.use2.devtunnels.ms/api/turnos";
+const API_URL = `${import.meta.env.VITE_API_URL}/turnos`;
 
 function Recepcion() {
   const [registros, setRegistros] = useState<Persona[]>([]);
