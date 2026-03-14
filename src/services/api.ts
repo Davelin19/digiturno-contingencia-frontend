@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000";
+const API_URL = process.env.VITE_BACKEND_URL;
 
 export async function obtenerPersonas() {
   const res = await fetch(`${API_URL}/personas`);
