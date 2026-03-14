@@ -1,8 +1,7 @@
 import "../assets/ListadoDeRegistros.css";
 import type { ListadoProps, Persona } from "../types/Types";
 import { useNavigate } from "react-router-dom";
-
-const API_URL = `${import.meta.env.VITE_API_URL}/turnos`;
+import api from "../lib/api";
 
 function ListadoDeRegistros({
   registros,
@@ -13,69 +12,36 @@ function ListadoDeRegistros({
 }: ListadoProps) {
   const navigate = useNavigate();
 
-  // 📞 LLAMAR PERSONA (Caja 1)
   const llamar = async (persona: Persona) => {
     try {
-      await fetch(`${API_URL}/${persona.id}/estado`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          estado: "Llamado", // ⚠️ EXACTO
-        }),
-      });
-
-      // Guardar el turno seleccionado para Caja2
+      await api.patch(`/turnos/${persona.id}/estado`, { estado: "Llamado" });
       localStorage.setItem("turnoLlamadoId", persona.id.toString());
-      recargar?.(); // 🔥 ACTUALIZA LISTA
+      recargar?.();
       navigate("/caja2");
-    } catch (error) {
-      console.error("Error llamando persona:", error);
+    } catch {
+      // el interceptor muestra el toast
     }
   };
 
-  // ✔️ ATENDER (Caja 2)
   const atender = async (persona: Persona) => {
     try {
-      await fetch(`${API_URL}/${persona.id}/estado`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          estado: "Atendido",
-        }),
-      });
-      recargar?.(); // 🔥 ACTUALIZA LISTA
-
-      console.log("Persona atendida:", persona.nombre);
+      await api.patch(`/turnos/${persona.id}/estado`, { estado: "Atendido" });
+      recargar?.();
       localStorage.removeItem("turnoLlamadoId");
-      // 🔁 volver a caja 1
       navigate("/caja1");
-    } catch (error) {
-      console.error("Error al atender:", error);
+    } catch {
+      // el interceptor muestra el toast
     }
   };
 
-  // ❌ CANCELAR (Caja 2)
   const cancelar = async (persona: Persona) => {
     try {
-      await fetch(`${API_URL}/${persona.id}/estado`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          estado: "Cancelado",
-        }),
-      });
-      recargar?.(); // 🔥 ACTUALIZA LISTA
-
+      await api.patch(`/turnos/${persona.id}/estado`, { estado: "Cancelado" });
+      recargar?.();
       localStorage.removeItem("turnoLlamadoId");
       navigate("/caja1");
-    } catch (error) {
-      console.error("Error cancelando persona:", error);
+    } catch {
+      // el interceptor muestra el toast
     }
   };
 

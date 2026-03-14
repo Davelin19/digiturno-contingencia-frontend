@@ -1,20 +1,23 @@
 import { useEffect, useState } from "react";
 import "../assets/Formulario.css";
 import type { FormularioProps } from "../types/Types";
+import api from "../lib/api";
 
 function Formulario({ onEnviar, personaEditando }: FormularioProps) {
   const [cedula, setCedula] = useState("");
   const [nombre, setNombre] = useState("");
   const [destino, setDestino] = useState("");
-  const API_URL = import.meta.env.VITE_API_URL;
   const [perfiles, setPerfiles] = useState([]);
 
   useEffect(() => {
     const id_sala = localStorage.getItem("salaSeleccionada");
-    fetch(`${API_URL}/salas/${id_sala}/perfiles_atencion`)
-      .then((res) => res.json())
-      .then((res) => setPerfiles(res));
-  }, [cedula]);
+    if (!id_sala) return;
+
+    api
+      .get(`/salas/${id_sala}/perfiles_atencion`)
+      .then((res) => setPerfiles(res.data))
+      .catch(() => {}); // el interceptor ya muestra el toast
+  }, []);
 
   useEffect(() => {
     if (personaEditando) {

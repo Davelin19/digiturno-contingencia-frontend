@@ -2,44 +2,38 @@ import Header from "../components/Header";
 import Formulario from "../components/Formulario";
 import { useEffect, useState } from "react";
 import ListadoDeRegistros from "../components/ListadoDeRegistros";
-import ModalCaja from "../components/ModalCaja"; // 👈 lo reutilizamos como modal de sala
+import ModalCaja from "../components/ModalCaja";
 import type { Persona } from "../types/Types";
 import "../assets/Recepcion.css";
 import SalaContext from "../contexts/SalaContext";
-
-const API_URL = `${import.meta.env.VITE_API_URL}/turnos`;
+import api from "../lib/api";
 
 function Recepcion() {
   const [registros, setRegistros] = useState<Persona[]>([]);
   const [personaEditando, setPersonaEditando] = useState<Persona | null>(null);
   const [cargando] = useState(false);
 
-  // 🔹 SALA
   const [salaSeleccionada, setSalaSeleccionada] = useState<number>(0);
   const [configurada, setConfigurada] = useState(false);
 
-  // 🔹 CARGAR PERSONAS
   async function cargarPersonas() {
     if (!configurada) return;
 
     try {
-      const res = await fetch(API_URL);
-      const data: Persona[] = await res.json();
-
+      const { data } = await api.get<Persona[]>("/turnos");
       const filtrados = data.filter(
-        (p) => p.id_sala === salaSeleccionada && p.estado === "En espera",
+        (p) => p.id_sala === salaSeleccionada && p.estado === "En espera"
       );
 
-      // 🔥 SOLO ACTUALIZA SI CAMBIÓ
       setRegistros((prev) => {
         const iguales = JSON.stringify(prev) === JSON.stringify(filtrados);
         return iguales ? prev : filtrados;
       });
-    } catch (error) {
-      console.error("Error cargando personas:", error);
+    } catch {
+      // el interceptor muestra el toast
     }
   }
-  // 🔹 CARGAR SALA DESDE LOCALSTORAGE
+
   useEffect(() => {
     const salaLS = localStorage.getItem("salaRecepcion");
     if (salaLS) {
@@ -50,7 +44,6 @@ function Recepcion() {
     }
   }, []);
 
-  // 🔹 RECARGA AUTOMÁTICA CADA 5 SEGUNDOS
   useEffect(() => {
     if (!configurada) return;
 
@@ -58,56 +51,37 @@ function Recepcion() {
       cargarPersonas();
     }, 5000);
 
-    return () => clearInterval(interval); // limpiar al desmontar
+    return () => clearInterval(interval);
   }, [salaSeleccionada, configurada]);
 
-  // useEffect(() => {
-  //   cargarPersonas();
-  // }, [salaSeleccionada, configurada]);
-
-  // 🔹 CREAR / ACTUALIZAR
   const guardarPersona = async (persona: Persona) => {
     try {
-      const personaConSala = {
-        ...persona,
-        id_sala: salaSeleccionada,
-      };
+      const personaConSala = { ...persona, id_sala: salaSeleccionada };
 
       if (personaEditando) {
-        await fetch(`${API_URL}/cedula/${persona.cedula}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(personaConSala),
-        });
+        await api.put(`/turnos/cedula/${persona.cedula}`, personaConSala);
         setPersonaEditando(null);
       } else {
-        console.log("POST", API_URL, personaConSala);
-        await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(personaConSala),
-        });
+        await api.post("/turnos", personaConSala);
       }
 
       cargarPersonas();
-    } catch (error) {
-      console.error("Error guardando persona:", error);
+    } catch {
+      // el interceptor muestra el toast
     }
   };
 
-  // 🔹 EDITAR
   const editarPersona = (id: number) => {
     const persona = registros.find((p) => p.id === id);
     if (persona) setPersonaEditando(persona);
   };
 
-  // 🔹 ELIMINAR
   const eliminarRegistro = async (id: number) => {
     try {
-      await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+      await api.delete(`/turnos/${id}`);
       cargarPersonas();
-    } catch (error) {
-      console.error("Error eliminando:", error);
+    } catch {
+      // el interceptor muestra el toast
     }
   };
 
@@ -121,10 +95,8 @@ function Recepcion() {
       }}
     >
       <div className="pantalla">
-        {/* HEADER SOLO MUESTRA LA SALA */}
         <Header titulo="RECEPCIÓN" />
 
-        {/* 🔥 MODAL PARA ELEGIR SALA */}
         {!configurada && (
           <ModalCaja
             modo="recepcion"
@@ -137,7 +109,6 @@ function Recepcion() {
           />
         )}
 
-        {/* CONTENIDO */}
         {configurada && (
           <div className="contenido-doble">
             <Formulario

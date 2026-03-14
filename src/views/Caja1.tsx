@@ -5,9 +5,7 @@ import Header from "../components/Header";
 import ModalCaja from "../components/ModalCaja";
 import SalaContext from "../contexts/SalaContext";
 import type { Persona } from "../types/Types";
-
-const API_PERSONAS = `${import.meta.env.VITE_API_URL}/turnos`;
-const API_CAJAS = `${import.meta.env.VITE_API_URL}/cajas`;
+import api from "../lib/api";
 
 function Caja1() {
   const [registros, setRegistros] = useState<Persona[]>([]);
@@ -17,9 +15,8 @@ function Caja1() {
   const [cajaSeleccionada, setCajaSeleccionada] = useState(0);
   const [perfilCaja, setPerfilCaja] = useState<string | null>(null);
   const [configurada, setConfigurada] = useState(false);
-  const [nombreCaja, setNombreCaja] = useState("")
+  const [nombreCaja, setNombreCaja] = useState("");
 
-  // 🔹 CARGAR CONFIG DESDE LOCALSTORAGE
   useEffect(() => {
     const salaLS = localStorage.getItem("salaSeleccionada");
     const cajaLS = localStorage.getItem("cajaSeleccionada");
@@ -31,35 +28,28 @@ function Caja1() {
     }
   }, []);
 
-  // 🔹 OBTENER PERFIL DE LA CAJA (REACTIVO)
   useEffect(() => {
-    const cargarPerfil = async () => {
-      if (!cajaSeleccionada) return;
+    if (!cajaSeleccionada) return;
 
-      try {
-        const res = await fetch(`${API_CAJAS}/${cajaSeleccionada}`);
-        const data = await res.json();
+    api
+      .get(`/cajas/${cajaSeleccionada}`)
+      .then(({ data }) => {
         setPerfilCaja(data.perfil);
-        setNombreCaja(data.nombre)
-      } catch (err) {
-        console.error("Error cargando perfil:", err);
-      }
-    };
-
-    cargarPerfil();
+        setNombreCaja(data.nombre);
+      })
+      .catch(() => {});
   }, [cajaSeleccionada]);
 
-  // 🔹 CARGAR PERSONAS
   const cargarDatos = async () => {
     try {
       const perfilConsulta = localStorage.getItem("perfilCaja");
-      const id_sala = localStorage.getItem("salaSeleccionada")
-      const res = await fetch(`${API_PERSONAS}/perfil_sala/${perfilConsulta}/sala/${id_sala}`);
-      const data: Persona[] = await res.json();
-
+      const id_sala = localStorage.getItem("salaSeleccionada");
+      const { data } = await api.get<Persona[]>(
+        `/turnos/perfil_sala/${perfilConsulta}/sala/${id_sala}`
+      );
       setRegistros(data);
-    } catch (error) {
-      console.error(error);
+    } catch {
+      // el interceptor muestra el toast
     } finally {
       setCargando(false);
     }
@@ -106,10 +96,7 @@ function Caja1() {
             {cargando ? (
               <p>Cargando...</p>
             ) : (
-              <ListadoDeRegistros
-                registros={registros}
-                caja={1}
-              />
+              <ListadoDeRegistros registros={registros} caja={1} />
             )}
           </div>
         )}

@@ -3,8 +3,7 @@ import { useEffect, useState } from "react";
 import ListadoDeRegistros from "../components/ListadoDeRegistros";
 import Header from "../components/Header";
 import type { Persona } from "../types/Types";
-
-const API_URL = `${import.meta.env.VITE_API_URL}/turnos`;
+import api from "../lib/api";
 
 function Caja2() {
   const [registros, setRegistros] = useState<Persona[]>([]);
@@ -15,26 +14,18 @@ function Caja2() {
         const turnoLlamadoId = localStorage.getItem("turnoLlamadoId");
 
         if (turnoLlamadoId) {
-          const res = await fetch(`${API_URL}/${turnoLlamadoId}`);
-          if (!res.ok) {
-            throw new Error("No se encontró el turno llamado");
-          }
-          const persona: Persona = await res.json();
-          setRegistros(persona ? [persona] : []);
+          const { data } = await api.get<Persona>(`/turnos/${turnoLlamadoId}`);
+          setRegistros(data ? [data] : []);
         } else {
-          const res = await fetch(API_URL);
-          const data: Persona[] = await res.json();
+          const { data } = await api.get<Persona[]>("/turnos");
           setRegistros(data.filter((p) => p.estado === "Llamado"));
         }
-      } catch (error) {
-        console.error(error);
+      } catch {
         setRegistros([]);
       }
     };
 
     cargarPersona();
-    // const interval = setInterval(cargarPersona, 3000);
-    // return () => clearInterval(interval);
   }, []);
 
   return (

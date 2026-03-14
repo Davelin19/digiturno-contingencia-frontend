@@ -3,21 +3,22 @@ import SalaContext from "../contexts/SalaContext";
 import type { HeaderProps } from "../types/Types";
 import { useState } from "react";
 import type { Sala } from "../types/Types";
+import api from "../lib/api";
 
 function Header({ titulo }: HeaderProps) {
   const salaContext = useContext(SalaContext);
   const [sala, setSala] = useState<Sala | undefined>();
-  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     if (!salaContext) return;
     const { salaId } = salaContext;
     if (!salaId) return;
 
-    fetch(`${API_URL}/salas/${salaId}`)
-      .then((res) => res.json())
-      .then((data) => setSala(data))
-      .catch((err) => console.error("Error cargando sala:", err));
+    api
+      .get<Sala>(`/salas/${salaId}`)
+      .then(({ data }) => setSala(data))
+      .catch(() => {});
+
     salaContext.setPerfilCaja(localStorage.getItem("perfilCaja"));
   }, [salaContext]);
 
@@ -27,15 +28,12 @@ function Header({ titulo }: HeaderProps) {
 
   return (
     <header className="header">
-      {/* LOGO */}
       <div className="logo-container">
         <img src="/logo.png" alt="Cámara de Comercio" />
       </div>
 
-      {/* TÍTULO */}
       <h1 className="titulo">{titulo}</h1>
 
-      {/* INFO DERECHA */}
       <div className="header-info">
         {salaId > 0 && (
           <div className="sala-actual">
@@ -43,7 +41,6 @@ function Header({ titulo }: HeaderProps) {
           </div>
         )}
 
-        {/* PERFIL DE LA CAJA (solo en caja) */}
         {perfilCaja && <div className="perfil-caja">Perfil: {perfilCaja}</div>}
       </div>
     </header>
